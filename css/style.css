@@ -152,6 +152,36 @@ body {
   background: #ffffff;
 }
 
+/* 拖曳排序相關樣式 */
+.sortable-ghost {
+  opacity: 0.6;
+  background: #f0f4ff !important;
+}
+
+.sortable-chosen {
+  background: #f0f8ff;
+}
+
+.sortable-drag {
+  opacity: 0.8;
+}
+
+/* 讓任務項目看起來可拖動 */
+.task-content {
+  cursor: grab;
+}
+
+.task-content:active {
+  cursor: grabbing;
+}
+
+/* 添加一個拖動效果提示 */
+.task-content::before {
+  content: "≡";
+  margin-right: 8px;
+  color: #999;
+}
+
 @media (max-width: 768px) {
   .input-form {
     flex-direction: column;

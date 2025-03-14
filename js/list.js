@@ -23,6 +23,9 @@ document.addEventListener("DOMContentLoaded", function () {
   //目的是從 localStorage 中讀取已存的任務並將它們顯示出來。
   loadTasks();
 
+  // 初始化拖曳排序功能
+  initSortable();
+
   // 新增任務事件
   taskForm.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -140,6 +143,8 @@ function createTaskElement(task) {
 
 // 保存任務到localStorage
 function saveTask(task) {
+  //從 localStorage 讀取當前存儲的任務列表
+  //getTasks() 函數會返回一個包含所有已儲存任務的陣列
   const tasks = getTasks();
   tasks.push(task);
   localStorage.setItem("tasks", JSON.stringify(tasks));
@@ -161,6 +166,31 @@ function loadTasks() {
   tasks.forEach((task) => {
     createTaskElement(task);
   });
+}
+// 初始化拖曳功能的函數
+function initSortable() {
+  // 確保 taskList 已經定義
+  if (!taskList) {
+    console.error("taskList 未定義，無法初始化排序功能");
+    return;
+  }
+
+  // 確保 Sortable 庫已經加載
+  if (typeof Sortable !== "undefined") {
+    Sortable.create(taskList, {
+      animation: 150, // 拖動時的動畫效果
+      handle: ".task-content", // 只允許通過任務內容區域拖動
+      ghostClass: "sortable-ghost", // 拖動時的元素樣式類
+      chosenClass: "sortable-chosen", // 被選中元素的樣式類
+      dragClass: "sortable-drag", // 正在拖動時的樣式類
+      onEnd: function (evt) {
+        // 拖曳結束後更新 localStorage 中的任務順序
+        updateTaskOrder();
+      },
+    });
+  } else {
+    console.error("Sortable 庫未加載，請確保已經引入 Sortable.js");
+  }
 }
 
 // 在localStorage中更新任務
@@ -204,4 +234,21 @@ function updateEmptyState() {
 function formatDate(dateString) {
   const options = { year: "numeric", month: "long", day: "numeric" };
   return new Date(dateString).toLocaleDateString("zh-TW", options);
+}
+
+//更新任務順序
+function updateTaskOrder() {
+  const updatedTasks = [];
+  // 取得所有 task-item，根據新的順序重建陣列
+  taskList.querySelectorAll(".task-item").forEach((item) => {
+    const taskId = Number(item.dataset.id);
+    // 找到對應的任務內容（這裡假設你可以根據 id 從原始陣列中找到對應任務）
+    const tasks = getTasks();
+    const task = tasks.find((t) => t.id === taskId);
+    if (task) {
+      updatedTasks.push(task);
+    }
+  });
+  // 將更新後的順序存入 localStorage
+  localStorage.setItem("tasks", JSON.stringify(updatedTasks));
 }
